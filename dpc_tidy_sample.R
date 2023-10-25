@@ -6,6 +6,7 @@
 rm(list=ls()) ##Gives clean enviornment
 
 ##Load packages for cleaning
+library("usethis")
 library("tidyverse")     
 library("readxl") #Loads package to read xlsx and sheets
 library("writexl") #Exports packages 
@@ -16,6 +17,9 @@ library("plotly")
 library("knitr")
 library("kableExtra")
 
+
+usethis::use_git()
+usethis::use_github()
 
 ##A function that deletes first blank row across different sheets
 import_dpc <- function(sheetname){read_excel("DPC_Population Estimates_2022.xlsx",

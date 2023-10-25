@@ -6,6 +6,10 @@ library("writexl") #Exports packages
 library("janitor")
 library("plotly")
 library("here")
+library("usethis")
+
+usethis::use_git()
+usethis::use_github()
 
 #Imports for Delaware, Race Categories
 DE_ALL <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/DPC_Population Estimates_2022.xlsx", sheet = "Delaware-All") %>% 
