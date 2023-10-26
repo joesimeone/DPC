@@ -8,8 +8,8 @@ library("plotly")
 library("here")
 library("usethis")
 
-usethis::use_git()
-usethis::use_github()
+#usethis::use_git()
+#usethis::use_github()
 
 #Imports for Delaware, Race Categories
 DE_ALL <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/DPC_Population Estimates_2022.xlsx", sheet = "Delaware-All") %>% 
@@ -20,7 +20,7 @@ DE_ALL <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/DPC_Population Esti
 #DE_Hisp <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/DPC_Population Estimates_2022.xlsx", sheet = "Delaware-Hisp")
 
 ##A function that deletes first blank row across different sheets
-import_dpc <- function(sheetname){read_excel("DPC_Population Estimates_2022.xlsx",
+import_dpc <- function(sheetname){read_excel("DPC_Population Estimates_2021.xlsx",
                                              sheet = sheetname) %>% na.omit}
 
 ##Imports New Castle County Data
@@ -169,8 +169,7 @@ DEBIND1 <- rbind(ncc_clean, kent_clean, sus_clean)
 
 
 
-#writexl::write_xlsx(DEBIND1, "/Users/joesimeone/Desktop/R Master/DPC_Tidy_2022_EST.xlsx")
-##writexl::write_xlsx(DEPop, "/Users/joesimeone/Desktop/R Master/DEUngroupSUM.xlsx")
+writexl::write_xlsx(DEBIND1, "/Users/joesimeone/Desktop/R Master/DPC/clean data/DPC_Tidy_2021_EST.xlsx")
 
 
 
