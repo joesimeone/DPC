@@ -1,0 +1,144 @@
+---
+title: "dpc_exploratory_easy"
+author: "Joe Simeone"
+date: "2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+##library statements
+library("tidyverse")
+library("readxl") 
+library("writexl") 
+library("janitor")
+library("plotly")
+library("knitr")
+library("kableExtra")
+
+##Import
+
+dpc_clean <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/clean data/DPC_Tidy_2022_EST.xlsx")
+
+```
+
+
+
+```{r, include=FALSE}
+
+##Here, we create 2 pretty similar functions so we can visualize some basic demographic info.
+##Allows us to eyeball data as needed for comparison
+
+##County level demographic stratification
+strat_county_yr <- function(YrStrat, by_var, expr, StratVar) {
+  
+dpc_clean %>% 
+filter(year==YrStrat) %>% 
+group_by(across({{ by_var }})) %>% 
+summarise("sum_{{expr}}" := sum({{ expr }})) %>% 
+ggplot(aes(county, sum_population_est, fill= {{StratVar}})) +
+geom_col(position = "dodge") + scale_y_continuous(labels = scales::comma)}
+
+##Function Calls
+county_sex_graph <- strat_county_yr(2022, c(county, sex), population_est, sex) + ylab("Count")
+county_race_graph <- strat_county_yr(2022, c(county, race), population_est, race) + ylab("Count")
+county_agegr_graph <- strat_county_yr(2022, c(county, age_group_tenyr), population_est, age_group_tenyr) + ylab("Count")
+
+
+##Allows to look at population composition of Delaware over time 
+strat_state_yr <- function(YrStrats, by_var, expr, StratVar){dpc_clean %>% 
+    mutate(yearNUM = as.numeric(year)) %>% 
+  filter(yearNUM %in% YrStrats) %>% group_by(across({{ by_var }})) %>% 
+    summarise("sum_{{expr}}" := sum({{ expr }})) %>% 
+    ggplot(aes(year, sum_population_est , fill={{StratVar}})) +
+    geom_col() + scale_y_continuous(labels = scales::comma)}
+
+##Function Calls
+sex_over_time <- strat_state_yr(2010:2022, c(year, sex), population_est, sex) + ylab("Count")
+county_over_time <- strat_state_yr(2010:2022, c(year, county), population_est, county) + ylab("Count")
+race_over_time <- strat_state_yr(2010:2022, c(year, race), population_est, race) + ylab("Count")
+age_over_time <- strat_state_yr(2010:2022, c(year, age_group_tenyr), population_est, age_group_tenyr) + ylab("Count")
+```
+```{r, include=FALSE}
+##So, this step is to manipulate data so that we can make a clean summary table with KNITR.
+
+##Derives County Estimates
+county_for_knitr <- dpc_clean %>% mutate(yearNUM = as.numeric(year)) %>% 
+                                  filter(yearNUM %in% 2018:2022) %>% 
+                                  group_by(yearNUM, county) %>% 
+                                  summarise(county_pop_est = sum(population_est))  
+
+  ##Derives State Estimates
+state_for_knitr <- dpc_clean %>% mutate(yearNUM = as.numeric(year)) %>% 
+                                  filter(yearNUM %in% 2018:2022) %>% 
+                                  group_by(yearNUM) %>% 
+                                  summarise(de_pop_est = sum(population_est)) 
+
+
+
+##Joins Data on Year
+join_county_st <- state_for_knitr %>% left_join(county_for_knitr, by=c('yearNUM'))
+
+```
+
+
+```{r, include=FALSE}
+
+knitr::kable(join_county_st, "html", caption = "<center><strong>Table 1.0: Population Estimates, By County, 2018-2022</strong></center>", escape = FALSE) %>% kable_styling(bootstrap_options = c("striped", "hover", "responsive", position = "left")) %>%
+  pack_rows(index = c( "2018" = 3, "2019" = 3, "2020"= 3, "2021"= 3, "2022" = 3)) %>% footnote(general = c("<i>Estimates as of October 2022</i>"), escape = FALSE)
+
+```
+
+Purpose: To eyeball Delaware Population Consortium (DPC) estimates stratified by relevant demographic categories. Gives you a quick sense of how population estimates break down.
+
+### DPC Estimates, Recent History.
+
+
+### DPC, Total Population By County, 2010-2022
+```{r, echo=FALSE}
+ggplotly(county_over_time)
+
+```
+
+
+
+### DPC, Total Population By Sex, 2010-2022
+```{r, echo=FALSE}
+ggplotly(sex_over_time)
+
+```
+
+
+
+### DPC, Total Population By Race, 2010-2022
+```{r, echo=FALSE}
+ggplotly(race_over_time)
+```
+
+
+
+### DPC, Total Population By Age Group, 2010-2022
+```{r, echo=FALSE}
+ggplotly(age_over_time)
+```
+
+# County Level Stratifications
+
+### DPC, County BY Sex, 2022
+```{r, echo=FALSE}
+ggplotly(county_sex_graph)
+```
+
+
+
+### DPC, County By Race, 2022 
+```{r, echo=FALSE}
+ggplotly(county_race_graph)
+```
+
+
+### DPC, County By Age Group, 2022
+```{r, echo=FALSE}
+ggplotly(county_agegr_graph)
+```
+

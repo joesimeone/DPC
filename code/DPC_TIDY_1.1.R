@@ -143,14 +143,26 @@ clean_dpc_data <- function(dat, county, dum){ dat %>% rename(population_est= Age
                                    age >= 85 ~ 9),
   
    ## Create Age Groupings - ten year age groups
-      age_group_tenyr = case_when(
+      age_group_tenyr_dummy = case_when(
                                   age < 5 ~ 0,
                                   age >= 5 & age <= 14 ~ 1,
                                   age >= 15 & age <= 24 ~ 2,
                                   age >= 25 & age <= 34 ~ 3,
-                                  age >= 45 & age <= 54 ~ 4,
-                                  age >= 55 & age <= 64 ~ 5,
-                                  age >= 65 ~ 6)) %>% 
+                                  age >= 35 & age <= 44 ~ 4,
+                                  age >= 45 & age <= 54 ~ 5,
+                                  age >= 55 & age <= 64 ~ 6,
+                                  age >= 65 ~ 7), 
+    
+    ## Create Age Groupings - ten year age groups
+      age_group_tenyr = case_when(
+                                 age < 5 ~ "under 5",
+                                 age >= 5 & age <= 14 ~ "5-14",
+                                 age >= 15 & age <= 24 ~ "15-24",
+                                 age >= 25 & age <= 34 ~ "25-34",
+                                 age >= 35 & age <= 44 ~ "35-44",
+                                 age >= 45 & age <= 54 ~ "45-54",
+                                 age >= 55 & age <= 64 ~ "55-64",
+                                 age >= 65 ~ "over 65")) %>%
     
     ## Discards initial age gender variable for cleaner formats
     select(!c(`Age-Gender`, 'agegend_chr'))}
