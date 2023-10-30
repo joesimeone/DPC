@@ -1,0 +1,111 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r, include=FALSE}
+##library statements
+library("tidyverse")
+library("readxl") 
+library("plotly")
+
+##Import
+
+dpc_clean <- read_excel("/Users/joesimeone/Desktop/R Master/DPC/clean data/DPC_Tidy_2022_EST.xlsx")
+```
+
+```{r, include=FALSE}
+##Creates a time variable that will be used for Series plotting 
+dpc_date_format <- dpc_clean %>% mutate(year_time = as.Date(ISOdate(year, 1, 1)))
+```
+
+
+```{r, include=FALSE}
+##Groups County Demographic information by newly created time variable
+dpc_dat_viz <- dpc_date_format %>% group_by(year_time, sex) %>% 
+                                   summarize(population_est = sum(population_est)) %>%
+                                   ungroup()
+
+```
+
+
+```{r, echo=FALSE}
+
+##Let's us apply custom color palatte to stratifcation
+group.colors <- c("M" = "darkred", "F" = "darkblue")
+
+##Initial graph parameters
+sex_graph_raw <- dpc_dat_viz %>% ggplot(aes(year_time, population_est, group = sex, color=sex)) +
+                     geom_line(linetype='solid', linewidth=1) +  
+                     scale_color_manual(values=group.colors) +
+                     scale_y_continuous(limits = c(200000, 600000),
+                                        breaks=c(200000, 400000, 600000),
+                                        labels = scales::comma) +
+                     ylab("Population Estimate") + 
+                     xlab("Year") + 
+                     ggtitle("DPC: Projected Population Growth, By Sex, 2010 - 2050")+
+                     labs(caption = "Estimates derived by Delaware Population Consortium as of October 2022")
+
+sex_graph_fin <- sex_graph_raw + theme(panel.grid.major.x = element_blank(), 
+                      panel.grid.minor.x = element_blank(),
+                      panel.grid.major.y = element_line(linewidth = .25, color= "gray", 
+                                                        linetype = 'dashed' ),
+                      panel.background = element_rect(fill = "white"), 
+                      axis.line.y.left = element_line(linewidth = .5, color="black"),                        
+                      axis.line.x.bottom = element_line(linewidth =.5, color = "black"),
+                      plot.title = element_text(hjust = 0.5),
+                      plot.caption = element_text(hjust = 0))
+
+                          
+                        
+                            
+
+                    
+```
+
+```{r, include=FALSE}
+dpc_dat_viz_co <- dpc_date_format %>% mutate(county = recode(county, "K" = "Kent County",
+                                                                "NCC" = "New Castle County",
+                                                                "SUS" = "Sussex County")) %>% 
+                                   group_by(year_time, county, sex) %>% 
+                                   summarize(population_est = sum(population_est)) %>%
+                                   ungroup() 
+
+
+
+
+
+  
+  
+```
+
+```{r, include=FALSE}
+
+facet_sex_raw <- dpc_dat_viz_co %>% ggplot(aes(year_time, population_est, group = sex, color=sex)) +
+                     geom_line(linetype='solid', linewidth=1) +  
+                     scale_color_manual(values=group.colors) +
+                     scale_y_continuous(limits = c(50000, 350000),
+                                        breaks=c(50000, 100000, 150000, 200000, 250000, 300000, 350000),
+                                        labels = scales::comma) +
+                     facet_grid(.~ county) +
+                     ylab("Population Estimate") + 
+                     xlab("Year") + 
+                     ggtitle("DPC: Projected Population Growth, By Sex, 2010 - 2050")+
+                     labs(caption = "Estimates derived by Delaware Population Consortium as of October 2022")
+
+
+facet_sex_fin <- facet_sex_raw + theme(panel.grid.major.x = element_blank(), 
+                      panel.grid.minor.x = element_blank(),
+                      panel.grid.major.y = element_line(linewidth = .25, color= "gray", 
+                                                        linetype = 'dashed' ),
+                      panel.grid.minor.y = element_blank(),
+                      panel.background = element_rect(fill = "whitesmoke"), 
+                      axis.line.y.left = element_line(linewidth = .5, color="black"),
+                      axis.line.x.bottom = element_line(linewidth =.5, color = "black"),
+                      strip.background = element_blank(),
+                      plot.title = element_text(hjust = 0.5),
+                      plot.caption = element_text(hjust = 0))
+
+```
+
